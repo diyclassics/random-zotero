@@ -1,25 +1,37 @@
 # Random Zotero
-Wireframe for Random Zotero built on Python3/Flask. Displays a random entry from a Zotero library in a simple HTML page.
 
-## Installation
-- Requires [uv](https://docs.astral.sh/uv/) (uv manages Python 3.13 for you)
-- Install dependencies and create the virtual environment:
-  ```
-  uv sync
-  ```
-- Set the environment variables described below, then launch the site:
-  ```
-  uv run python app.py
-  ```
+Static page that displays a random entry from the public Zotero group library [*Annotated Bibliography of Digital Classics*](https://www.zotero.org/groups/625742/annotated_bibliography_of_digital_classics/library) (group `625742`).
 
-## Environment variables for Zotero
-NB: You need to add an .env file with Zotero information to make this work. DO NOT COMMIT THIS FILE TO VERSION CONTROL. (It should be excluded by .gitignore.) The .env file should look like this:
+The library is a public Zotero group, so the page calls the Zotero API directly from the browser — no backend, no API key, no build step.
+
+## How it works
+
+On every page load, the browser:
+
+1. Reads the current item count from the `Total-Results` header of `api.zotero.org/groups/625742/items/top?limit=1`.
+2. Picks a random offset `0..total-1`.
+3. Fetches one item at that offset with the MLA bib HTML included (`include=bib&style=mla`).
+4. Renders the citation in the page.
+
+Two requests per visit, regardless of library size.
+
+## Local development
+
+No build step. Open `index.html` directly, or serve the folder over HTTP:
 
 ```
-APP_SETTINGS="config.DevelopmentConfig"
-LIBRARY_ID='{REPLACETHIS}'
-LIBRARY_TYPE='{REPLACETHIS}'
-API_KEY='{REPLACETHIS}'
+python3 -m http.server 8000
+# then visit http://localhost:8000
 ```
 
-*Written by Patrick J. Burns and Joseph Hartnett, October 2018; updated May 2026.*
+## Deployment
+
+Hosted on GitHub Pages, served from the `main` branch root. Pushing to `main` deploys.
+
+## Previous Flask version
+
+The pre-rewrite Flask version is preserved at tag [`v0.1-flask`](../../tree/v0.1-flask).
+
+---
+
+*Written by Patrick J. Burns and Joseph Hartnett, October 2018; rewritten as a static site in May 2026.*
