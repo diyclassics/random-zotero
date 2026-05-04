@@ -7,8 +7,11 @@ Thumbs.db
 .idea/
 *.swp
 
-# Node (if tooling is added later)
+# Node
 node_modules/
+dist/
+site/
+*.log
 
 # Local overrides
 .env
