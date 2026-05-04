@@ -7,50 +7,38 @@ if (!citation) throw new Error('Missing #citation target');
 
 const ITEM_PARAM = 'item';
 
-async function load(key?: string): Promise<string | undefined> {
+function currentKey(): string | undefined {
+  return new URLSearchParams(location.search).get(ITEM_PARAM) ?? undefined;
+}
+
+let currentItemKey: string | undefined = undefined;
+
+async function load(key?: string): Promise<void> {
   if (reroll) reroll.disabled = true;
   citation!.setAttribute('aria-busy', 'true');
   citation!.textContent = 'Loading…';
   try {
     const [item, { renderItem }] = await Promise.all([
-      key ? fetchByKey(key) : fetchRandomItem(currentKey()),
+      key ? fetchByKey(key) : fetchRandomItem(currentItemKey),
       import('./render.ts'),
     ]);
     await renderItem(citation!, item);
-    return item.key;
+    currentItemKey = item.key;
   } catch (err) {
     const msg = err instanceof ZoteroError ? err.message : 'Failed to load citation';
     citation!.textContent = `Error: ${msg}`;
-    return undefined;
   } finally {
     citation!.removeAttribute('aria-busy');
     if (reroll) reroll.disabled = false;
   }
 }
 
-function urlForKey(key: string): string {
-  const url = new URL(location.href);
-  url.searchParams.set(ITEM_PARAM, key);
-  return url.toString();
-}
-
-function currentKey(): string | undefined {
-  return new URLSearchParams(location.search).get(ITEM_PARAM) ?? undefined;
-}
-
-reroll?.addEventListener('click', async () => {
-  const key = await load();
-  if (key) history.pushState(null, '', urlForKey(key));
+reroll?.addEventListener('click', () => {
+  void load();
 });
 
 window.addEventListener('popstate', () => {
   void load(currentKey());
 });
 
-(async () => {
-  const initial = currentKey();
-  const key = await load(initial);
-  // On a first visit without ?item=, replace the URL so it becomes shareable
-  // (no extra history entry).
-  if (key && !initial) history.replaceState(null, '', urlForKey(key));
-})();
+void load(currentKey());
