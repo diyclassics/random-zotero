@@ -13,10 +13,16 @@ export async function renderItem(target: HTMLElement, item: ZoteroItem): Promise
 
   walk(tmpl.content);
 
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.appendChild(buildCopyLinkButton(item.key));
+
   const link = item.links?.alternate?.href;
   if (link) {
-    tmpl.content.appendChild(buildZoteroLink(link));
+    meta.appendChild(document.createTextNode(' · '));
+    meta.appendChild(buildZoteroLink(link));
   }
+  tmpl.content.appendChild(meta);
 
   target.innerHTML = tmpl.innerHTML;
 }
@@ -26,9 +32,29 @@ function buildZoteroLink(href: string): HTMLAnchorElement {
   a.href = href;
   a.target = '_blank';
   a.rel = 'noopener';
-  a.className = 'linkout';
+  a.className = 'meta-link';
   a.textContent = 'View on Zotero ↗';
   return a;
+}
+
+function buildCopyLinkButton(itemKey: string): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'meta-link';
+  btn.textContent = 'Copy link';
+  btn.addEventListener('click', async () => {
+    const url = `${location.origin}${location.pathname}?item=${encodeURIComponent(itemKey)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      btn.textContent = 'Copied ✓';
+    } catch {
+      btn.textContent = 'Copy failed';
+    }
+    window.setTimeout(() => {
+      btn.textContent = 'Copy link';
+    }, 1500);
+  });
+  return btn;
 }
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g;

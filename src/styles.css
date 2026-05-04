@@ -109,16 +109,24 @@ header .nav:hover {
   text-indent: -1.5em !important;
 }
 
-.citation .linkout {
-  display: block;
+.citation .meta {
   margin-top: 0.75em;
   text-align: right;
   font-size: 0.8125rem;
+}
+
+.citation .meta-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
   text-decoration: none;
+  cursor: pointer;
   opacity: 0.65;
 }
 
-.citation .linkout:hover {
+.citation .meta-link:hover {
   opacity: 1;
   text-decoration: underline;
 }
