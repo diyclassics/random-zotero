@@ -41,4 +41,10 @@ window.addEventListener('popstate', () => {
   void load(currentKey());
 });
 
-void load(currentKey());
+// Treat ?item=KEY as a one-shot landing parameter: render the item, then
+// clean the URL so a subsequent Cmd+R fetches a fresh random.
+const initialKey = currentKey();
+if (initialKey) {
+  history.replaceState(null, '', location.pathname + location.hash);
+}
+void load(initialKey);
