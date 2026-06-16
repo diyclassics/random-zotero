@@ -15,5 +15,8 @@
   },
   "dependencies": {
     "citeproc": "^2.4.63"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
   }
 }
